@@ -1,0 +1,27 @@
+{
+    "name": "mean-ubertech",
+    "version": "1.0.0",
+    "description": "The Ubertech MEAN Machine",
+    "main": "server.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/labofmischief/mean-ubertech"
+    },
+    "scripts": {
+        "start": "node server.js",
+        "test": "node server.js"
+    },
+    "author": "Abhishek S. Dabholkar",
+    "license": "GPL-3.0",
+    "dependencies": {
+        "body-parser": "^1.15.2",
+        "express": "^4.14.0",
+        "mongoose": "^4.5.8",
+        "morgan": "^1.7.0",
+        "nodemailer": "^2.5.0",
+        "nodemailer-mailgun-transport": "^1.2.1",
+        "nodemailer-markdown": "^1.0.0",
+        "shortid": "^2.2.6",
+        "winston": "^2.2.0"
+    }
+}
