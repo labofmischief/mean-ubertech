@@ -1,3 +1,14 @@
+/**
+* @Author: Abhishek S. Dabholkar <labofmischief>
+* @Date:   2016-08-04T10:42:41+05:30
+* @Email:  asd@labofmischief.com
+* @Last modified by:   labofmischief
+* @Last modified time: 2016-08-06T20:33:16+05:30
+* @License: GPL-3.0
+*/
+
+
+
 var winston = require('winston');
 
 winston.emitErrs = true;

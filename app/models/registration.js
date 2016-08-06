@@ -16,6 +16,10 @@ var RegistrationSchema = new Schema({
         type: String,
         required: true
     },
+    college: {
+        type: String,
+        required: true
+    },
     department: {
         type: String,
         required: true
@@ -26,7 +30,10 @@ var RegistrationSchema = new Schema({
     },
     events: {
         type: [String],
-        required: true
+    },
+    accommodation: {
+        type: Boolean,
+        default: false
     },
     token: {
         type: String,

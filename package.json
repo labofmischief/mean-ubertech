@@ -7,6 +7,9 @@
         "type": "git",
         "url": "https://github.com/labofmischief/mean-ubertech"
     },
+    "engines": {
+        "node": "6.3.0"
+    },
     "scripts": {
         "start": "node server.js",
         "test": "node server.js"

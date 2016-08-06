@@ -1,3 +1,14 @@
+/**
+* @Author: Abhishek S. Dabholkar <labofmischief>
+* @Date:   2016-08-03T10:25:50+05:30
+* @Email:  asd@labofmischief.com
+* @Last modified by:   labofmischief
+* @Last modified time: 2016-08-06T20:33:45+05:30
+* @License: GPL-3.0
+*/
+
+
+
 var express = require('express');
 var app = express();
 var log = require('./log')(module);
@@ -12,6 +23,7 @@ var mailgun = require('nodemailer-mailgun-transport');
 var config = require('./config');
 
 var port = process.env.PORT || 8080;
+mongoose.Promise = global.Promise;
 mongoose.connect(config.database);
 // app.set('superSecret', config.secret);
 var Registration = require('./app/models/registration.js');
@@ -34,7 +46,7 @@ app.use(morgan('dev'));
 var router = express.Router();
 
 router.use(function(req, res, next) {
-    log.error('Incoming Request');
+    log.info('Incoming Request');
     next();
 });
 
@@ -43,6 +55,7 @@ router.get('/', function(req, res) {
 });
 
 router.get('/registration/regId/:regId/token/:token', function(req, res) {
+    llog.info("Request Params: %s \nRequest Body : %s", req.params, req.body);
     Registration.findOne({ regId: req.params.regId ,token: req.params.token }, function(err, registration) {
         if (err) {
             log.error(err);
@@ -61,8 +74,9 @@ router.get('/registration/regId/:regId/token/:token', function(req, res) {
 });
 
 router.put('/register', function(req, res) {
+    log.info("Request Params: %s \nRequest Body : %s", req.params, req.body);
     if (!req.body.events) {
-        log.info("No events specified for regId: %s", req.body.regI);
+        log.info("No events specified for regId: %s", req.body.regId);
         res.statusCode = 404;
         res.json({ error: 'No events specified' });
         return;
@@ -94,11 +108,13 @@ router.put('/register', function(req, res) {
                     log.info("Registration updated with regId: %s", registration.regId);
                     var emailContent = "### Hello " + registration.name
                     + ",\n\n\nThank you for participating in **Ubertech ’16**.\n\n"
-                    + "This is the updated list of events you now participate in:\n\n";
-                    for (var i = 0; i < registration.events.length; i++) {
-                        emailContent += "* " + registration.events[i] + "\n";
+                    if(registration.events.length > 0) {
+                        emailContent += "This is the updated list of events you now participate in:\n\n";
+                        for (var i = 0; i < registration.events.length; i++) {
+                            emailContent += "* " + registration.events[i] + "\n";
+                        }
                     }
-                    emailContent += "\n\nExpecting you,  \nThe Ubertech Team";
+                    emailContent += "\n\nBest regards,  \nThe Ubertech Team";
                     var mailOptions = {
                         from: config.mailgunMailFrom,
                         to: registration.email,
@@ -123,13 +139,16 @@ router.put('/register', function(req, res) {
 });
 
 router.post('/register', function(req, res) {
+    log.info('Request Params: %s \nRequest Body : %s', req.params, req.body);
     var registration = new Registration({
         regId: req.body.regId,
         email: req.body.email,
         name: req.body.name,
+        college: req.body.college,
         department: req.body.department,
         year: req.body.year,
-        events: req.body.events
+        events: req.body.events,
+        accommodation: req.body.accommodation
     });
     var token = 'U16' + shortid.generate();
     registration.token = token;
@@ -147,13 +166,20 @@ router.post('/register', function(req, res) {
         } else {
             log.info("New registration added with token: %s", registration.token);
             var emailContent = "### Hello " + registration.name
-            + ",\n\n\nThank you for participating in **Ubertech ’16**.\n\n"
-            + "You have participated in the following events:\n\n";
-            for (var i = 0; i < registration.events.length; i++) {
-                emailContent += "* " + registration.events[i] + "\n";
+            + ",  \n\n\nThank you for participating in **Ubertech ’16**.  \n\n"
+            if(registration.events.length > 0) {
+                emailContent += "You have participated in the following events:  \n\n";
+                for (var i = 0; i < registration.events.length; i++) {
+                    emailContent += "* " + registration.events[i] + "  \n";
+                }
             }
-            emailContent += "\n\nYour token is **" + registration.token
-                + "**.\nKeep your token safe.  \n\n\nExpecting you,  \nThe Ubertech Team";
+            if (registration.accommodation) {
+                emailContent += "  \n\nJust to confirm, you have applied for accommodation.  ";
+            } else {
+
+            }
+            emailContent += "  \n\nYour token is **" + registration.token
+                + "**.  \nKeep your token safe.  \n\n\nBest regards,  \nThe Ubertech Team";
             var mailOptions = {
                 from: config.mailgunMailFrom,
                 to: registration.email,
@@ -169,14 +195,14 @@ router.post('/register', function(req, res) {
             });
             res.statusCode = 200;
             res.json({
-                message: 'OK',
+                message: 'You’re up. Details have been sent to your email.',
                 token: registration.token
             });
         }
     });
 });
 
-app.use('/api', router);
+app.use('/' + config.apiVersion, router);
 
 app.listen(port, function() {
     log.info('MEAN Machine running on http://localhost:' + port);
