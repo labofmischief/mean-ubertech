@@ -3,7 +3,7 @@
 * @Date:   2016-08-03T10:25:50+05:30
 * @Email:  asd@labofmischief.com
 * @Last modified by:   labofmischief
-* @Last modified time: 2016-08-06T20:33:45+05:30
+* @Last modified time: 2016-08-07T10:40:30+05:30
 * @License: GPL-3.0
 */
 
@@ -51,7 +51,7 @@ router.use(function(req, res, next) {
 });
 
 router.get('/', function(req, res) {
-    res.json({message: 'Don\'t try anything funny. I call it nOAuth2 for a reason'});
+    res.json({message: config.description });
 });
 
 router.get('/registration/regId/:regId/token/:token', function(req, res) {
@@ -64,7 +64,7 @@ router.get('/registration/regId/:regId/token/:token', function(req, res) {
             if (!registration) {
                 log.info("Registration with regId: %s and token: %s not found", req.params.regId, req.params.token);
                 res.statusCode = 404;
-                res.json({ error: 'Registration not found' });
+                res.json({ message: 'Not Found' });
                 return;
             }
             log.info("Registration queried with regId: %s", registration.regId);
@@ -78,7 +78,7 @@ router.put('/register', function(req, res) {
     if (!req.body.events) {
         log.info("No events specified for regId: %s", req.body.regId);
         res.statusCode = 404;
-        res.json({ error: 'No events specified' });
+        res.json({ message: 'Missing Parameter' });
         return;
     }
     Registration.findOne({ regId: req.body.regId ,token: req.body.token }, function(err, registration) {
@@ -89,7 +89,7 @@ router.put('/register', function(req, res) {
             if (!registration) {
                 log.info("Registration with regId: %s and token: %s not found", req.body.regId, req.body.token);
                 res.statusCode = 404;
-                res.json({ error: 'Registration not found' });
+                res.json({ message: 'Not Found' });
                 return;
             }
             registration.events = req.body.events;
@@ -98,10 +98,10 @@ router.put('/register', function(req, res) {
                 if (err) {
                     if (err.name === 'ValidationError') {
                         res.statusCode = 400;
-                        res.json({ error: 'Validation error' });
+                        res.json({ message: 'Validation Error' });
                     } else {
                         res.statusCode = 500;
-                        res.json({ error: 'Server error' });
+                        res.json({ message: 'Server Error' });
                     }
                     log.error('Internal error(%d): %s', res.statusCode, err.message);
                 } else {
@@ -157,10 +157,10 @@ router.post('/register', function(req, res) {
         if (err) {
             if (err.name === 'ValidationError') {
                 res.statusCode = 400;
-                res.json({ error: 'Validation error' });
+                res.json({ message: 'Validation Error' });
             } else {
                 res.statusCode = 500;
-                res.json({ error: 'Server error' });
+                res.json({ message: 'Server Error' });
             }
             log.error('Internal error(%d): %s', res.statusCode, err.message);
         } else {
@@ -195,7 +195,7 @@ router.post('/register', function(req, res) {
             });
             res.statusCode = 200;
             res.json({
-                message: 'You’re up. Details have been sent to your email.',
+                message: 'OK',
                 token: registration.token
             });
         }
